@@ -1,0 +1,254 @@
+<?php
+   get_header('kb');
+   remove_filter( 'the_content', 'wpautop' );
+   $term = $wp_query->queried_object;
+   $theType = wp_get_object_terms($post->ID, 'type'); // to get the Tag of the Post
+   $theSector = wp_get_object_terms($post->ID, 'sector'); // to get the Tag of the Post
+   $theTags = wp_get_object_terms($post->ID, 'rtag'); // to get the Tag of the Post
+
+   $body_classes = get_body_class();
+   $banner_image = 'kc/knowledge-banner.jpg';
+   if (in_array('tax-type', $body_classes)) {
+      if (in_array('term-brochure', $body_classes)) {
+         $banner_image = 'kc/knowledge-banner.jpg';
+      } elseif (in_array('term-white-paper', $body_classes)) {
+         $banner_image = 'kc/knowledge-banner.jpg';
+      } elseif (in_array('term-infographic', $body_classes)) {
+         $banner_image = 'kc/knowledge-banner.jpg';
+      }
+   }
+?>
+
+<!-- START : BANNER -->
+<div class="clearfix kc_banner" style=" background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%), url('<?php echo get_template_directory_uri(); ?>/images/<?php echo $banner_image ?>') no-repeat center top; background-size: cover;">
+   <div class="wrapper clearfix">
+      
+      <div class="kc_banner_head clearfix">
+         <span>Resource Overview</span>
+         <h1>All the information you need.</h1>
+      </div>
+      
+      <div class="clearfix featured_post">
+         <div class="featured_post_head">
+            Featured Resources
+         </div>
+         <?php
+         if( !is_paged() ){
+            $homepagePosts = new WP_Query(
+                              array(
+                                 'posts_per_page' => 1,
+                                 'rtag' => 'featured',
+                                 'type' => $theType[0]->name
+                              )
+                           );
+            while ($homepagePosts->have_posts()) {
+               $homepagePosts->the_post(); ?>
+               <div class="clearfix featured_post_wrap">
+                  <div class="width50 fl">
+                     <div class="featured_thumb clearfix">
+                        <?php if (has_post_thumbnail( $post->ID ) ): ?>
+                        <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'singplepost' ); ?>
+                           <a href="<?php the_permalink() ?>"><img src="<?php echo $image[0]; ?>" alt="<?php the_title(); ?>" width="594" height="296" /></a>
+                        <?php endif; ?>
+                     </div>
+                  </div>
+                  <div class="width50 fl">
+                     <div class="featured_info clearfix">
+                        <span class="resource_tag">
+                           <?php 
+                                 $theTags = wp_get_object_terms($post->ID, 'rtag');
+                                 echo $theTags[0]->name;
+                           ?> 
+                           <?php echo $theType[0]->name; ?>                           
+                        </span>                      
+                        <h2><a href="<?php the_permalink() ?>" rel="bookmark"><?php the_title(); ?></a></h2>
+                        <p><?php echo wp_trim_words(get_the_excerpt(), 18); ?></p>
+                        <a href="#" class="bluelink">Learn more&nbsp;&rarr;</a>
+                     </div>
+                  </div>
+               </div>
+            <?php } wp_reset_postdata(); ?> 
+         <?php } ?>         
+      </div>
+      
+      
+      <!-- Start : Featured Resources Categories -->
+      <div class="clearfix res_cat">
+         <div class="clearfix res_cat_wrap row-cols-6-gutter">
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/blog'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-blog.png" alt="Icon Blogs" height="65" width="65" />
+                  </div>
+                  <p>Blogs</p>
+               </a>
+            </div>
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/case-studies'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-case-studies.png" alt="Case Studies" height="65" width="65" />
+                  </div>
+                  <p>Case Studies</p>
+               </a>
+            </div>
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/resource/white-paper'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-white-paper.png" alt="Icon White Papers" height="65" width="65" />
+                  </div>
+                  <p>White Papers</p>
+               </a>
+            </div>
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/resource/infographic'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-infographics.png" alt="Icon Infographics" height="65" width="65" />
+                  </div>
+                  <p>Infographics</p>
+               </a>
+            </div>
+            <!--div class="fl res_cat_box">
+               <a href="<php echo home_url('/resource/research-paper'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<php echo get_template_directory_uri(); ?>/images/kc/icon-research-paper.png" alt="Icon Research Papers" height="65" width="65" />
+                  </div>
+                  <p>Ebook / Papers</p>
+               </a>
+            </div-->            
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/resource/brochure'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-brochure.png" alt="Icon Brochure" height="65" width="65" />
+                  </div>
+                  <p>Brochure</p>
+               </a>
+            </div>
+            <div class="fl res_cat_box">
+               <a href="<?php echo home_url('/resource/video'); ?>">
+                  <div class="clearfix res_cat_thumb">
+                     <img src="<?php echo get_template_directory_uri(); ?>/images/kc/icon-video.png" alt="Icon Videos" height="65" width="65" />
+                  </div>
+                  <p>Videos</p>
+               </a>
+            </div>            
+         </div>
+      </div>         
+      <!-- End : Featured Resources Categories -->      
+   </div>
+</div>
+<!-- END : BANNER -->
+
+<?PHP include('filter/tax-filter.php'); ?>
+
+
+<!-- SHOW ALL POSTS -->
+<div class="clearfix wrapper res_cat_card">
+   <div class="clearfix res_cat_card_wrap">
+      <?php
+      //    WordPress loop for custom post type
+      //      $term = $wp_query->queried_object;
+      //      $args = array(
+      //         'post_type' => 'cpt_resource',
+      //         'posts_per_page' => 9,
+      //         'rescat' => $term->name,
+      //         'paged' => get_query_var( 'paged' ),
+      //      );
+
+      //Set up the post query arguments
+      $args = array(
+         'post_type' => 'resources',
+         'posts_per_page' => 9,
+         'type' => $term->name,
+         'paged' => get_query_var( 'paged' ),
+         'tax_query' => array(),
+      );      
+
+      //    Add the sector filter to the query
+      //    if ( isset( $_GET['sector-filter'] ) ) {
+      //       $args['tax_query'][] = array(
+      //       'taxonomy' => 'sector',
+      //       'field' => 'slug',
+      //       'terms' => sanitize_text_field( $_GET['sector-filter'] ),
+      //       );
+      //    }
+
+      if (isset($_GET['sector-filter']) && !empty($_GET['sector-filter'])) {
+         $args['tax_query'][] = array(
+            'taxonomy' => 'sector',
+            'field' => 'slug',
+            'terms' => sanitize_text_field( $_GET['sector-filter'] ),
+         );
+      }
+
+      // Check if "All" option is selected or sector filter is empty
+      if (empty($_GET['sector-filter'])) {
+         unset($args['tax_query']); // Remove the tax_query to show all posts
+      }
+         
+      // Run the post query
+      $query = new WP_Query( $args );
+
+      // Output the post loop
+      if ( $query->have_posts() ) {
+         while ( $query->have_posts() ) {
+            $query->the_post();
+         //$query = new WP_Query( $args );
+         //if ( $query->have_posts() ) : while ( $query->have_posts() ) : $query->the_post();  ?>
+         <div class="one-third fl mb-4">
+            <div class="clearfix res_cat_card_box">
+               <div class="res_cat_card_thumb clearfix">
+                  <?php if (has_post_thumbnail( $post->ID ) ): ?>
+                  <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'csimg' ); ?>
+                     <a href="<?php echo get_permalink(); ?>" title="<?php the_title(); ?>">
+                        <img src="<?php echo $image[0]; ?>" alt="<?php the_title(); ?>" class="csthumb" height="256" width="274" />
+                     </a>
+                  <?php endif; ?>
+               </div>
+               <div class="res_cat_card_info clearfix">
+                  <span class="resource_tag">
+                     <?php echo $theType[0]->name; ?>
+                  </span>
+                  <span class="resource_tag ml-1">
+                  <?php
+                     // Get the sector terms for the post
+                     $post_sectors = get_the_terms( get_the_ID(), 'sector' );
+                     // Display the sector name if it exists
+                     if ( !empty( $post_sectors ) ) {
+                        $sector = array_shift( $post_sectors );
+                        echo esc_html( $sector->name );
+                     }
+                  ?>
+                  </span>
+                     
+                  <h3><a href="<?php echo get_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h3>
+                  
+                  <div class="card_hidden">
+                     <h3><a href="<?php echo get_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h3>
+                     <p class="res_cat_card_excerpt"><?php echo wp_trim_words(get_the_excerpt(),10); ?></p>
+                  </div>
+                  
+                  <a href="<?php echo get_permalink(); ?>" class="bluelink">Learn more&nbsp;&rarr;</a>
+               </div>
+            </div>
+         </div>
+         <?php } } wp_reset_postdata(); ?>
+         <!--php endwhile; endif; wp_reset_postdata(); ?-->
+   </div>
+</div>
+<!-- /SHOW ALL POSTS -->
+
+<div class="clearfix wrapper text-center position-relative mt-1 mb-4 pb-4">
+   <div class="clearfix resource-pagination">   
+      <?php global $query;
+            $big = 999999999; // need an unlikely integer
+            echo paginate_links( array(
+               'base' => str_replace( $big, '%#%', get_pagenum_link( $big ) ),
+               'format' => '?paged=%#%',
+               'current' => max( 1, get_query_var('paged') ),
+               'total' => $query->max_num_pages
+            ) );
+      ?>
+   </div>
+</div>
+
+<?php get_footer('kb'); ?>

@@ -1,0 +1,212 @@
+<?php
+	/*
+		Template Name: White Paper
+		Template Post Type: resources
+	*/
+   get_header('kb');
+   remove_filter( 'the_content', 'wpautop' );
+   global $wp_query;
+   $theCat = wp_get_object_terms($post->ID, 'type');
+   $theSector = wp_get_object_terms($post->ID, 'sector');
+   $theTag = wp_get_object_terms($post->ID, 'resourcetag');
+   $thumbimage = get_post_meta( get_the_ID(), 'thumbimage', true );
+   if ( have_posts() ) while ( have_posts() ) : the_post();
+?>
+
+
+<!-- Banner -->
+<div class="clearfix" id="wp_type_banner">
+   <div class="clearfix wrapper wp_type_banner_wrap">
+      <div class="width50 fl">
+         <div class="fl wp_resource_info">
+            <div class="clearfix">
+               <p class="resource-type-tag"><?php echo $theCat[0]->name ?></p>
+               <p class="resource-type-tag"><?php echo $theSector[0]->name ?></p>
+            </div>
+            <h1><?php echo get_the_title($post->ID) ?></h1>
+            <a href="#" class="type_banner_download" id="download_popup">Download</a>
+         </div>         
+      </div>
+      <div class="width50 fl">
+         <div class="fl wp_resource_thumb">
+            <!--php $thumb = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), 'typethumb' );?>
+            <img src="<php echo $thumb['0'];?>" alt="<php the_title(); ?>" height="356" width="275" /-->
+            <img src="<?php echo $thumbimage; ?>" alt="<?php the_title(); ?>" height="356" width="275" />
+         </div>         
+      </div>
+   </div>
+   <div class="slide-cut cut--eng-blue"></div>
+</div>
+
+
+<!-- /Banner -->
+
+<div class="clearfix breadcrumb">
+   <div class="wrapper clearfix">
+      <div id="breadcrumb">
+         <?php if(function_exists('bcn_display')) { bcn_display(); }?>
+      </div>
+   </div>
+</div>
+
+<!-- Content Information -->
+<div class="clearfix type_content">
+   <div class="wrapper">
+      <div class="width66 fl type_content_info">
+         <?php
+            echo the_content();
+            endwhile;
+         ?>
+      </div>
+      <div class="width33 fl type_content_form">
+         
+         <p class="type_content_form_head">Get Resource now!</p>
+         <p>Please click to view and download free content</p>
+         <?php echo do_shortcode( '[contact-form-7 id="5346" title="Download Resource Form Full"]' ); ?>
+         
+         <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            var customForm = document.querySelector('.type_content_form #wpcf7-f4559-o1');
+            if (customForm) {
+               customForm.addEventListener('wpcf7mailsent', function(event) {
+                  event.preventDefault(); // Prevent form submission redirect
+                  // Add your custom logic here
+                  // alert('Form submitted successfully!');
+                  document.addEventListener( 'wpcf7mailsent', function( event ) {
+                     location.reload();
+                  }, false );
+               }, false);
+            }
+         });
+         </script>
+        
+      </div>
+   </div>
+</div>
+<!-- /Content Information -->
+
+<?php
+   $current_post = get_post(); // Get the current post object
+   $infographic_posts = new WP_Query(array(
+      'post_type' => 'resources',
+      'posts_per_page' => -1,
+      'tax_query' => array(
+         array(
+            'taxonomy' => 'type',
+            'field' => 'slug',
+            'terms' => $theCat[0]->slug,
+         ),
+      ),
+   ));
+   $infographic_post_ids = wp_list_pluck($infographic_posts->posts, 'ID'); // Get an array of infographic post IDs
+   $current_index = array_search($current_post->ID, $infographic_post_ids); // Get the index of the current infographic post
+   $previous_post = null;
+   $next_post = null;
+
+   if ($current_index !== false) {
+      $previous_post_id = $infographic_post_ids[$current_index - 1] ?? null; // Get the ID of the previous infographic post
+      $next_post_id = $infographic_post_ids[$current_index + 1] ?? null; // Get the ID of the next infographic post
+      if ($previous_post_id) {
+         $previous_post = get_post($previous_post_id);
+      }      
+      if ($next_post_id) {
+         $next_post = get_post($next_post_id);
+      }
+   }
+?>
+
+<!-- Display previous and next links -->
+<div class="clearfix wrapper">
+   <div class="clearfix previous-next-wrap">
+      <?php if ($previous_post) : ?>
+         <div class="fl width50">
+            <a href="<?php echo get_permalink($previous_post); ?>" class="previous-resource">&larr; Previous <?php echo $theCat[0]->name ?></a>
+         </div>
+      <?php endif; ?>
+      <?php if ($next_post) : ?>
+         <div class="fl width50 text-right">
+            <a href="<?php echo get_permalink($next_post); ?>" class="next-resource">Next <?php echo $theCat[0]->name ?> <span class="text-white">&rarr;</span></a>
+         </div>
+      <?php endif; ?>
+   </div>
+</div>
+
+
+<!-- Related Infographics -->
+<div class="clearfix related-resources">
+   <div class="clearfix wrapper">
+      <div class="clearfix res_cat_card_header">
+         <h2>Related <?php echo $theCat[0]->name ?></h2>
+      </div>
+      <div class="clearfix res_cat_card_wrap">
+      <?php
+   //      query_posts(
+   //         array(
+   //            'post_type'=>'cpt_resource',
+   //            'posts_per_page' => 3,
+   //            'rescat' => 'infographic'
+   //         )
+   //      );
+         query_posts (
+            array(
+               'post_type'=>'resources',
+               'posts_per_page'  => 3,
+               'type' => $theCat[0]->name,
+               'sector' => $theSector[0]->name,
+               'orderby' => 'rand'
+            )
+         );
+         ?>   
+         <?php while (have_posts()) : the_post(); ?>
+
+            <div class="one-third fl">
+               <div class="clearfix res_cat_card_box">
+                  <div class="res_cat_card_thumb clearfix">               
+                     <?php if (has_post_thumbnail( $post->ID ) ): ?>
+                        <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'csimg' ); ?>
+                        <a href="<?php echo get_permalink(); ?>" title="<?php the_title(); ?>" class="d-block">
+                           <img src="<?php echo $image[0]; ?>" alt="<?php the_title(); ?>" width="390" height="195" />
+                        </a>
+                     <?php endif; ?>
+                  </div>
+                  <div class="res_cat_card_info clearfix">
+                     <span class="resource_tag"><?php echo $theCat[0]->name ?></span>
+                     <span class="resource_tag"><?php echo $theSector[0]->name ?></span>
+                     <h3><a href="<?php echo get_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h3>
+                     <div class="card_hidden">
+                        <h3><a href="<?php echo get_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a></h3>
+                        <p class="res_cat_card_excerpt"><?php echo wp_trim_words(get_the_excerpt(),10); ?></p>
+                     </div>
+                     <a href="<?php echo get_permalink(); ?>" class="bluelink">Learn more&nbsp;&rarr;</a>
+                  </div>
+               </div>
+            </div>
+         <?php endwhile; ?>
+      </div>
+   </div>
+</div>
+<!-- /Related Infographics -->
+
+
+
+
+
+<?php get_footer('kb'); ?>
+
+
+<!--
+<div style="position:fixed;width:100%;height:5px;left:0;right:0;bottom:0;top:auto;display:block;z-index:99999;"><progress id="scrollProgress" value="0" max="100"></progress></div>   
+<script>
+window.addEventListener('scroll', function() {
+// Get the scroll position of the page
+var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+// Get the total height of the page
+var totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+// Calculate the scroll progress as a percentage
+var scrollProgress = (scrollTop / totalHeight) * 100;
+// Update the value of the progress element
+var progressElement = document.getElementById('scrollProgress');
+progressElement.value = scrollProgress;
+});
+</script>
+-->
